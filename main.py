@@ -11,7 +11,7 @@ import cv2
 import urllib
 
 from crawlers import BasicCrawler
-from imageprocessors import DifferenceHash, EXIF, Thumbnail
+from imageprocessors import Colour, DifferenceHash, EXIF, Thumbnail
 
 def format_timer(t):
     h = int(t/3600)
@@ -22,8 +22,8 @@ def format_timer(t):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Find and process images")
     parser.add_argument("--mode", "-m", help="crawler: crawls the given directory (-d). processor: classifiier for found images.")
-    parser.add_argument("--dir", "-d", help="local filesystem: root directory")
-    parser.add_argument("--server", "-s", help="server path: root directory")
+    parser.add_argument("--dir", "-d", help="local filesystem: root directory") # /mnt/pdrive
+    parser.add_argument("--server", "-s", help="server path: root directory") # //s-ver-fs-01/projects
     parser.add_argument("--limit", "-l", help="the number of files to process before stopping", default=-1)
     args = parser.parse_args()
 
@@ -43,15 +43,16 @@ if __name__ == '__main__':
     if args.mode and args.mode == 'processor':
         start = timeit.default_timer()
         print "Entering processor mode... ("+args.dir+" -> "+args.server+")"
-        # create instances of all processors, and add a dictionary. The keys of
-        # the dictonary will be the attribute name in the image object on the
-        # server. The results of the process() function will be the value.
+        # create instances of all processors, the process() function of each
+        # processor will return the updated photo object
         thumbnails = Thumbnail()
         differencehash = DifferenceHash()
         exif = EXIF()
+        colour = Colour()
         imageprocessors = [thumbnails,          # thumbnail, width, height
                            differencehash,      # differencehash
-                           exif]                # location, datetaken
+                           exif,                # location, datetaken
+                           colour]              # white, grey, blue, red, orange, green, etc.
         # get some new images from the server. The server is expsected to send
         # a JSON array of image objects [{_id: <>, filepaths: <>, etc}]
         r = requests.get("http://localhost:3000/api/newphotos/"+urllib.quote_plus(args.server))
@@ -68,6 +69,8 @@ if __name__ == '__main__':
                     if image is not None:
                         for p in imageprocessors:
                             i = p.process(image, i)
+                        if hasattr(i, 'location') and i["location"] is not None:
+                            print i
                         i["status"] = 'processed'
                         r = requests.patch("http://localhost:3000/api/photos/"+i["_id"], data=i)
                     else:
@@ -80,7 +83,8 @@ if __name__ == '__main__':
                     photos_to_process = data["total_new_photos"]
                 except Exception as e:
                     message = "Exception encountered: {0}: {1}: {2}"
-                    print message.format(type(e).__name__, i["filepaths"][0], e.args)
+                    print i
+                    print message.format(type(e).__name__.encode('utf-8'), i["filepaths"][0].encode('utf-8'), e.args)
                     requests.delete("http://localhost:3000/api/photos/"+i["_id"])
 
         print "Elapsed "+format_timer(timeit.default_timer() - start)
