@@ -83,8 +83,8 @@ if __name__ == '__main__':
                     photos_to_process = data["total_new_photos"]
                 except Exception as e:
                     message = "Exception encountered: {0}: {1}: {2}"
-                    print i
-                    print message.format(type(e).__name__.encode('utf-8'), i["filepaths"][0].encode('utf-8'), e.args)
+                    #print i
+                    #print message.format(type(e).__name__.encode('utf-8'), i["filepaths"][0].encode('utf-8'), e.args)
                     requests.delete("http://localhost:3000/api/photos/"+i["_id"])
 
         print "Elapsed "+format_timer(timeit.default_timer() - start)

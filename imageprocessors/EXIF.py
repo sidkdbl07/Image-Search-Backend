@@ -13,6 +13,7 @@ class EXIF:
         path = data["directory"] + data["filepaths"][0].split(data["server"])[1]
         f = open(path,'rb')
         tags = exifread.process_file(f, details=False)
+        #print tags
         gps_latitude = self.get_if_exists(tags, 'GPS GPSLatitude')
         gps_latitude_ref = self.get_if_exists(tags, 'GPS GPSLatitudeRef')
         gps_longitude = self.get_if_exists(tags, 'GPS GPSLongitude')
@@ -28,10 +29,10 @@ class EXIF:
                 lon = 0 - lon
 
             data['location'] = {'type': "Point", 'coordinates': [ lon, lat ]}
-            data['datetaken'] = self.get_if_exists(tags, 'DateTime')
+            data['datetaken'] = self.get_if_exists(tags, 'Date taken')
         else:
             data["location"] = None
-            data['datetaken'] = self.get_if_exists(tags, 'DateTime')
+            data['datetaken'] = self.get_if_exists(tags, 'Date taken')
         return data
 
     def convert_to_degrees(self, value):
