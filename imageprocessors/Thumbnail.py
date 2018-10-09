@@ -2,8 +2,9 @@ import cv2
 import base64
 
 class Thumbnail:
-    def __init__(self):
-        self.maxdim = 167
+    def __init__(self,config):
+        self.maxdim = 240
+        self.config = config
 
     def process(self, image, data):
         if(image.shape[1] > image.shape[0]): # landscape

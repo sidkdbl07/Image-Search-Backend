@@ -1,2 +1,3 @@
 imagesearchenv
 *.pyc
+config.*.ini

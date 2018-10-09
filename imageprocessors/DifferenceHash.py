@@ -1,8 +1,9 @@
 import cv2
 
 class DifferenceHash:
-    def __init__(self):
+    def __init__(self,config):
         self.hashsize = 8
+        self.config = config
 
     def process(self, image, data):
         cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
