@@ -6,7 +6,7 @@ ExifRead==2.1.2
 idna==2.6
 imutils==0.4.4
 multiprocess==0.70.6.1
-numpy==1.13.3
+numpy==1.22.0
 pymongo==3.6.0
 requests==2.18.4
 scikit-learn==0.19.1
